@@ -119,6 +119,10 @@ export class SpriteRenderer {
     ctx.restore();
   }
 
+  static drawLightningLine(ctx: CanvasRenderingContext2D, startX: number, startY: number, endX: number, endY: number): void {
+    this.drawLightning(ctx, startX, startY, endX, endY);
+  }
+
   // 2. Draw Slime Enemy
   static drawSlime(ctx: CanvasRenderingContext2D, opts: EntityDrawOptions & { color?: string }): void {
     const { x, y, radius, animTime = 0, isHit = false, color = '#3399ff' } = opts;

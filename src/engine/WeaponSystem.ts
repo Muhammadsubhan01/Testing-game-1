@@ -27,6 +27,14 @@ export interface Projectile {
   angle?: number;
 }
 
+export interface ActiveLightningVisual {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  life: number;
+}
+
 export class WeaponSystem {
   // Weapon Levels (0 = not unlocked, 1-5)
   magicBoltLevel: number = 1;
@@ -45,8 +53,9 @@ export class WeaponSystem {
   // Active Orbiting Angle
   orbitAngle: number = 0;
 
-  // Active Projectiles
+  // Active Projectiles & Visuals
   projectiles: Projectile[] = [];
+  activeLightningLines: ActiveLightningVisual[] = [];
 
   reset(): void {
     this.magicBoltLevel = 1;
@@ -59,6 +68,7 @@ export class WeaponSystem {
     this.lightningCooldownTimer = 0;
     this.orbitAngle = 0;
     this.projectiles = [];
+    this.activeLightningLines = [];
   }
 
   getAvailableUpgrades(): WeaponUpgradeOption[] {
@@ -223,6 +233,14 @@ export class WeaponSystem {
       }
     }
 
+    // Update lightning visuals duration
+    for (let i = this.activeLightningLines.length - 1; i >= 0; i--) {
+      this.activeLightningLines[i].life -= dt;
+      if (this.activeLightningLines[i].life <= 0) {
+        this.activeLightningLines.splice(i, 1);
+      }
+    }
+
     // 3. Lightning Strikes
     if (this.lightningLevel > 0) {
       this.lightningCooldownTimer -= dt;
@@ -239,6 +257,15 @@ export class WeaponSystem {
         for (const target of targets) {
           const fatal = target.takeDamage(damage);
           onHitEnemy(target, damage, fatal);
+
+          this.activeLightningLines.push({
+            x1: player.x,
+            y1: player.y - 15,
+            x2: target.x,
+            y2: target.y,
+            life: 0.15,
+          });
+
           if (onLightningStrike) {
             onLightningStrike(player.x, player.y - 40, target.x, target.y);
           }
@@ -272,6 +299,11 @@ export class WeaponSystem {
   }
 
   draw(ctx: CanvasRenderingContext2D, player: Player, cameraX: number, cameraY: number): void {
+    // Draw Lightning Lines
+    for (const line of this.activeLightningLines) {
+      SpriteRenderer.drawLightningLine(ctx, line.x1 - cameraX, line.y1 - cameraY, line.x2 - cameraX, line.y2 - cameraY);
+    }
+
     // Draw Projectiles
     for (const p of this.projectiles) {
       if (p.type === 'bolt') {
