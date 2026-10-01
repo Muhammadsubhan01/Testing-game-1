@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Cute Bunny Survivor</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <!-- Game Canvas -->
+      <canvas id="game-canvas"></canvas>
+
+      <!-- HUD Layer -->
+      <div id="hud" class="ui-layer hidden">
+        <!-- Top Bar -->
+        <div class="top-bar">
+          <div class="xp-bar-container">
+            <div id="xp-bar-fill" class="xp-bar-fill" style="width: 0%"></div>
+            <div class="xp-bar-text">
+              <span id="level-badge" class="level-badge">Lv. 1</span>
+              <span id="xp-text">0 / 100 XP</span>
+            </div>
+          </div>
+          <div class="hud-center">
+            <div id="game-timer" class="game-timer">00:00</div>
+          </div>
+          <div class="hud-right">
+            <div class="stat-pill kills-pill">
+              <span class="icon">💀</span>
+              <span id="kill-count">0</span>
+            </div>
+            <div class="stat-pill coins-pill">
+              <span class="icon">🪙</span>
+              <span id="coin-count">0</span>
+            </div>
+            <button id="pause-btn" class="icon-btn">⏸️</button>
+          </div>
+        </div>
+
+        <!-- HP Bar & Inventory HUD -->
+        <div class="bottom-hud">
+          <div class="hp-bar-container">
+            <div class="hp-heart">❤️</div>
+            <div class="hp-bar-track">
+              <div id="hp-bar-fill" class="hp-bar-fill" style="width: 100%"></div>
+              <span id="hp-text" class="hp-text">100/100</span>
+            </div>
+          </div>
+          <div id="inventory-slots" class="inventory-slots">
+            <!-- Dynamic weapon/item slots -->
+          </div>
+        </div>
+
+        <!-- Touch Virtual Joystick -->
+        <div id="joystick-zone" class="joystick-zone">
+          <div id="joystick-base" class="joystick-base">
+            <div id="joystick-thumb" class="joystick-thumb"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start Screen Overlay -->
+      <div id="start-screen" class="overlay-screen">
+        <div class="modal-card start-card">
+          <div class="hero-header">
+            <div class="bunny-avatar-big">🐰</div>
+            <h1 class="game-title">Cute Bunny<br><span class="subtitle">SURVIVOR</span></h1>
+          </div>
+          <p class="tagline">Survive waves of cute monsters, level up, & collect magical powerups!</p>
+          <div class="controls-guide">
+            <div class="guide-item">🕹️ <strong>Desktop:</strong> WASD / Arrow Keys</div>
+            <div class="guide-item">📱 <strong>Touch:</strong> On-screen Joystick</div>
+          </div>
+          <button id="start-btn" class="primary-btn pulse-btn">PLAY NOW! 🚀</button>
+        </div>
+      </div>
+
+      <!-- Level Up / Skill Selection Modal -->
+      <div id="upgrade-screen" class="overlay-screen hidden">
+        <div class="modal-card upgrade-card">
+          <h2 class="modal-title">CHOOSE AN UPGRADE! ✨</h2>
+          <p class="modal-subtitle">Pick a powerful weapon or boost for Bunny!</p>
+          <div id="upgrade-options" class="upgrade-options">
+            <!-- Dynamic 3 upgrade options cards inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Pause Screen Modal -->
+      <div id="pause-screen" class="overlay-screen hidden">
+        <div class="modal-card pause-card">
+          <h2 class="modal-title">GAME PAUSED ⏸️</h2>
+          <div class="audio-toggles">
+            <div class="toggle-row">
+              <span>🎵 Music</span>
+              <button id="music-toggle-btn" class="toggle-btn active">ON</button>
+            </div>
+            <div class="toggle-row">
+              <span>🔊 Sound FX</span>
+              <button id="sfx-toggle-btn" class="toggle-btn active">ON</button>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="resume-btn" class="primary-btn">Resume ▶️</button>
+            <button id="restart-from-pause-btn" class="secondary-btn">Restart 🔄</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over / You Ded Modal -->
+      <div id="gameover-screen" class="overlay-screen hidden">
+        <div class="modal-card gameover-card">
+          <div class="sad-avatar">🐰💧</div>
+          <h2 class="modal-title gameover-title">You Ded!</h2>
+          <div class="progress-bar-card">
+            <span class="bar-label">Stage Progress</span>
+            <div class="progress-track">
+              <div id="go-progress-fill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span id="go-progress-text" class="progress-percentage">0%</span>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-icon">🪙</span>
+              <span id="go-coins" class="stat-val">0</span>
+              <span class="stat-lbl">Coins</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-icon">💎</span>
+              <span id="go-gems" class="stat-val">0</span>
+              <span class="stat-lbl">Gems</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-icon">💀</span>
+              <span id="go-kills" class="stat-val">0</span>
+              <span class="stat-lbl">Kills</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-icon">⏱️</span>
+              <span id="go-time" class="stat-val">00:00</span>
+              <span class="stat-lbl">Time</span>
+            </div>
+          </div>
+          <div class="modal-actions horizontal">
+            <button id="revive-btn" class="revive-btn">💖 Revive?</button>
+            <button id="restart-btn" class="primary-btn">Restart 🔄</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Victory Screen Modal -->
+      <div id="victory-screen" class="overlay-screen hidden">
+        <div class="modal-card victory-card">
+          <div class="trophy-avatar">🏆✨</div>
+          <h2 class="modal-title victory-title">VICTORY!</h2>
+          <p class="victory-subtitle">You survived all monster waves!</p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-icon">🪙</span>
+              <span id="vic-coins" class="stat-val">0</span>
+              <span class="stat-lbl">Coins</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-icon">💎</span>
+              <span id="vic-gems" class="stat-val">0</span>
+              <span class="stat-lbl">Gems</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-icon">💀</span>
+              <span id="vic-kills" class="stat-val">0</span>
+              <span class="stat-lbl">Kills</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-icon">⏱️</span>
+              <span id="vic-time" class="stat-val">05:00</span>
+              <span class="stat-lbl">Time</span>
+            </div>
+          </div>
+          <button id="vic-playagain-btn" class="primary-btn pulse-btn">PLAY AGAIN! 🌟</button>
+        </div>
+      </div>
+
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
